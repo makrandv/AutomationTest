@@ -15,8 +15,8 @@ public class HelperUtilities {
     //Calculate month difference between given dates
     public static long CalculateDateDiff(String startDate, String endDate) {
         /**-------------------------Date----------------------------*/
-        LocalDate sDate = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("dd-MMM-yyyy"));
-        LocalDate eDate = LocalDate.parse(endDate, DateTimeFormatter.ofPattern("dd-MMM-yyyy"));
+        LocalDate sDate = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("dd-MMM-yyyy")).withDayOfMonth(1);
+        LocalDate eDate = LocalDate.parse(endDate, DateTimeFormatter.ofPattern("dd-MMM-yyyy")).withDayOfMonth(1);
         long dateDiff = ChronoUnit.MONTHS.between(sDate, eDate);
         return dateDiff;
     }
