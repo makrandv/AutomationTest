@@ -8,9 +8,12 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class HomePage extends BasePage {
 
@@ -51,11 +54,23 @@ public class HomePage extends BasePage {
     }
 
     /*
+    Get displayed date in the Return date field on the page
+     */
+    public String getDisplayedReturnDate() throws ParseException {
+        String returnDate = driver.findElement(By.name("arriveDate")).getAttribute("value");
+        SimpleDateFormat formatter1 = new SimpleDateFormat("MMM dd, yyyy");
+        Date date = formatter1.parse(returnDate);
+        SimpleDateFormat formatter2 = new SimpleDateFormat("dd-MMM-yyyy");
+        String returnFormattedDate = formatter2.format(date);
+        return returnFormattedDate;
+    }
+
+    /*
     Set the Journey Dates
      */
-    public void setJourneyDates(String onWardDate,String returnDate)
-    {
+    public void setJourneyDates(String onWardDate,String returnDate) throws ParseException, InterruptedException {
         WebElement searchDialog = this.getSearchDialog();
+        String displayedReturnDate = getDisplayedReturnDate();
         WebDriverWait wait = new WebDriverWait(driver,5000);
         wait.until(ExpectedConditions.elementToBeClickable(searchDialog.findElement(By.name("departDate"))));
         searchDialog.findElement(By.name("departDate")).click();
@@ -65,9 +80,10 @@ public class HomePage extends BasePage {
         LocalDate localDate = LocalDate.now();
         String currentDate = FORMATTER.format(localDate);
 
+
         //Set the date from the DatePicker Control
-        setJourneryDate("depart",currentDate,onWardDate);
-        setJourneryDate("return",onWardDate,returnDate);
+        setJourneryDate("depart",currentDate,onWardDate,displayedReturnDate);
+        setJourneryDate("return",onWardDate,returnDate,displayedReturnDate);
     }
 
     /*
@@ -89,18 +105,40 @@ public class HomePage extends BasePage {
     /*
     Method to set the Date from the Date Picker control based on the Journey (Depart or Return)
      */
-    private void setJourneryDate(String journeyType,String currentDate , String enteredDate)
-    {
-        //Get the Month difference between the given dates to select the month from date picker
-        int monthDiff = (int)HelperUtilities.CalculateDateDiff(currentDate,enteredDate);
+    private void setJourneryDate(String journeyType,String currentDate ,String enteredDate,String returnDateDisplayed) throws InterruptedException {
+
+        int backWardMonthDiff=0,monthDiff=0,forwardMonthDiff=0;
+
+        WebElement dateArrow;
+
+        //Check if the calendar displayed shows current month or next month
+        if(journeyType.equalsIgnoreCase("return") && (int)HelperUtilities.CalculateDateDiff(enteredDate,returnDateDisplayed) >0)
+        {
+            backWardMonthDiff = (int)HelperUtilities.CalculateDateDiff(enteredDate,returnDateDisplayed);
+        }
+        else
+        {
+            forwardMonthDiff = (int)HelperUtilities.CalculateDateDiff(currentDate,enteredDate);
+        }
 
         WebElement datePickerDialog = driver.findElement(By.xpath(".//div[contains(@class,"+"'trip-dates__"+journeyType+"-date-dialog')]"));
-        WebElement forwardDateArrow = datePickerDialog.findElements(By.tagName("button")).get(1);
+
+        //Move backwards if the return date is in current month however the calendar is displayed for next m
+        if(backWardMonthDiff>0)
+        {
+            dateArrow = datePickerDialog.findElements(By.tagName("button")).get(0);
+            monthDiff = backWardMonthDiff;
+        }
+        else
+        {
+            dateArrow = datePickerDialog.findElements(By.tagName("button")).get(1);
+            monthDiff = forwardMonthDiff;
+        }
 
         //Traverse through the month till the excepted month calendar appears
         for(int iMon=0;iMon < monthDiff;iMon++)
         {
-            forwardDateArrow.click();
+            dateArrow.click();
         }
 
         //Select Date from the month
@@ -108,6 +146,7 @@ public class HomePage extends BasePage {
         WebElement onWardDay = datePickerDialog.findElement(By.xpath(".//button/span[contains(text(),"+travelDay+")]"));
         WebDriverWait wait = new WebDriverWait(driver,5000);
         wait.until(ExpectedConditions.elementToBeClickable(onWardDay));
+        Thread.sleep(500);
         onWardDay.click();
     }
 }
