@@ -6,6 +6,7 @@ import modelPages.HomePage;
 import modelPages.TripReviewPage;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
+import java.text.ParseException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,7 +19,7 @@ public class SearchFlightTests extends BaseTests {
     3.	I should be able to get the total and it should be correct depending on the fares
      */
     @Test
-    public void SearchAndSelectCheapestFlight() throws InterruptedException {
+    public void SearchAndSelectCheapestFlight() throws InterruptedException, ParseException {
 
         //Launch Application
         driver.navigate().to(prop.getProperty("ApplicationURL"));
@@ -27,7 +28,7 @@ public class SearchFlightTests extends BaseTests {
         //Enter Search Criteria
         homePage.setTripType("return");
         homePage.setSourceDestination("Auckland","Wellington");
-        homePage.setJourneyDates("25-Jun-2019","25-Aug-2019");
+        homePage.setJourneyDates("01-Jul-2019","02-Aug-2019");
         //Click Search Button
         homePage.ClickSearchFlight();
 
@@ -75,7 +76,7 @@ public class SearchFlightTests extends BaseTests {
     4.	The responses come back within 3.5 seconds (Page Load Time for each page under test is <= 3.5 Seconds)
      */
     @Test
-    public void VerifyLoadTimeForWebPages() throws InterruptedException {
+    public void VerifyLoadTimeForWebPages() throws InterruptedException, ParseException {
 
         driver.navigate().to(prop.getProperty("ApplicationURL"));
         // (HOME PAGE)
@@ -88,7 +89,7 @@ public class SearchFlightTests extends BaseTests {
         //Enter Search Criteria
         homePage.setTripType("return");
         homePage.setSourceDestination("Auckland","Wellington");
-        homePage.setJourneyDates("25-Jun-2019","25-Aug-2019");
+        homePage.setJourneyDates("25-Jul-2019","25-Aug-2019");
         //Click Search Button
         homePage.ClickSearchFlight();
 
@@ -128,7 +129,7 @@ public class SearchFlightTests extends BaseTests {
     5.	I should get a proper message should the session expire
      */
     @Test
-    public void VerifySessionExpiry() throws InterruptedException {
+    public void VerifySessionExpiry() throws InterruptedException, ParseException {
 
         //Launch Application
         driver.navigate().to(prop.getProperty("ApplicationURL"));
